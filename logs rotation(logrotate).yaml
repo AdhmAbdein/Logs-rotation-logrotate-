@@ -1,0 +1,39 @@
+---
+  - name: logs rotation in managed nodes
+    hosts: all
+    become: yes
+    tasks:
+      - name: install logrotate
+        yum:
+          name: logrotate
+          state: present
+  
+      - name: make configuration of logrotate
+        copy:
+          dest: /etc/logrotate.d/system_logs
+          content: |         
+            /var/log/messages {
+                daily
+                rotate 7
+                compress
+                missingok
+                notifempty
+            }
+            /var/log/secure {
+                daily
+                rotate 7
+                compress
+                missingok
+                notifempty
+            }
+  
+#copy module in Ansible cannot copy directories
+
+#/var/log/messages:This is the default system log file where general system messages are stored.
+#/var/log/secure:This log file contains security-related messages, such as authentication attempts.
+
+#daily:Specifies that the logs should be rotated daily.Log rotation frequency can also be set to weekly or monthly based on requirements.
+#rotate 7:Keeps the last 7 rotated log files.Older files beyond this number are deleted automatically.
+#compress:Compresses the rotated log files to save disk space.Compressed files typically have extensions like .gz.
+#missingok:If the specified log file is missing, logrotate skips the rotation process for that file without raising an error.
+#notifempty: Prevents rotation of empty log files.This avoids unnecessary creation of rotated files if the original file contains no data.
